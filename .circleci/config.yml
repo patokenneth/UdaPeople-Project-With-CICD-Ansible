@@ -40,11 +40,11 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          mentions: 'automation'
+          mentions: '@automation'
           template: basic_fail_1
       - slack/notify:
           event: pass
-          mentions: 'automation'
+          mentions: '@automation'
           template: success_tagged_deploy_1
 
 jobs:
