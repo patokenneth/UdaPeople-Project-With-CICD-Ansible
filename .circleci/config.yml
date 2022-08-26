@@ -213,7 +213,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - run: echo $"{ENVIRONMENT}"
-      - destroy_environment
+      - destroy-environment
       - notifyfail
   run-migrations:
     docker:
@@ -236,7 +236,7 @@ jobs:
               curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/message -d '0'
             fi
       - revert-migrations
-      - destroy_environment
+      - destroy-environment
       - notifyfail
 
 workflows:
