@@ -38,17 +38,14 @@ commands:
   notifypassorfail:
     description: notify the automation team of success or failure
     steps:
-      - run:
-          name: slack notification
-          command: |
-            - slack/notify:
-                event: fail
-                mentions: '#automation'
-                template: basic_fail_1
-            - slack/notify:
-                event: pass
-                mentions: '#automation'
-                template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          mentions: '#automation'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          mentions: '#automation'
+          template: success_tagged_deploy_1
 
 jobs:
   build-frontend:
@@ -85,6 +82,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - notifypassorfail
 
 workflows:
   default:
