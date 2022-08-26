@@ -1,5 +1,9 @@
 version: 2.1
 
+orbs: 
+  slack: circleci/slack@4.10.1
+  aws-cli: circleci/aws-cli@2.0.3
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -31,6 +35,22 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
+  notifypassorfail:
+    description: notify the automation team of success or failure
+    steps:
+      - run:
+          name: slack notification
+          command: |
+            - slack/notify:
+                event: fail
+                mentions: '#automation'
+                template: basic_fail_1
+            - slack/notify:
+                event: pass
+                mentions: '#automation'
+                template: success_tagged_deploy_1
+
+
             
 jobs:
   build-frontend:
@@ -43,11 +63,13 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            # Your code here
-            exit 1
+            cd frontend
+            npm install
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notifypassorfail
 
   build-backend:
     docker:
@@ -59,8 +81,9 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             # Your code here
-             exit 1
+             cd backend
+             npm install
+             npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
