@@ -186,6 +186,33 @@ jobs:
       - destroy-environment
       - notifyfail
       - notifypass
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "58:47:e6:5a:a6:c7:54:fd:00:c0:75:fb:b8:fe:6f:02"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies(AWSCLI AND ANSIBLE)
+          command: |
+            sudo apt update
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install          
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y                  
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+      - notifyfail
 
 workflows:
   default:
