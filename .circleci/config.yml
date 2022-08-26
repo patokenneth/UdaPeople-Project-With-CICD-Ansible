@@ -114,7 +114,35 @@ jobs:
             npm run test
       - notifyfail
       - notifypass
-
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+       -restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: scan frontend for vulnerabilities
+          command: |
+              cd frontend
+              npm install
+              npm audit --audit-level=critical
+      - notifyfail
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: scan backend for vulnerabilities
+          command: |
+              cd frontend
+              npm install
+              npm audit --audit-level=critical
+      - notifyfail
+      - notifypass
 
 workflows:
   default:
@@ -125,10 +153,10 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
