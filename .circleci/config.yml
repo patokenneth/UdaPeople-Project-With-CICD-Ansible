@@ -35,15 +35,18 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-  notifypassorfail:
-    description: notify the automation team of success or failure
+  notifypass:
+    description: notify the automation team of success
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+  notifyfail:
+    description: notify the automation team of failure
     steps:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: basic_success_1
 
 jobs:
   build-frontend:
@@ -62,12 +65,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      - notifyfail
 
   build-backend:
     docker:
@@ -85,7 +83,38 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notifypassorfail
+      - notifyfail
+      - notifypass
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Frontend test
+          command: |
+            cd frontend
+            npm install
+            npm run test
+      - notifyfail
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Backend test
+          command: |
+            cd backend
+            npm install
+            npm run test
+      - notifyfail
+      - notifypass
+
 
 workflows:
   default:
