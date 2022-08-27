@@ -235,9 +235,9 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
+              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
             else
-              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '0'
+              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '0'
             fi
       - revert-migrations
       - destroy-environment
