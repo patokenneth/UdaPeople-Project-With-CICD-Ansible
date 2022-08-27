@@ -224,7 +224,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            sudo npm install -g npm
+            npm install
             npm run migrations > migrations_dump.txt
             sudo apt update
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -332,7 +332,7 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-            
+
             npm i
             npm run build
             cd ..
