@@ -236,12 +236,8 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
-              export SUC = $(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
-              echo ${SUC}
             else
               curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '0'
-              export SUC = $(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
-              echo ${SUC}
             fi
       - revert-migrations
       - destroy-environment
