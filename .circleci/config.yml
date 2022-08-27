@@ -385,11 +385,50 @@ jobs:
             echo ${FRONTEND_WEBSITE}
             if curl -s ${FRONTEND_WEBSITE} | grep "Welcome"
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
       - notifyfail
+      - run:
+          name: delete bucket objects
+          when: on_fail
+          command: |
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+      - destroy-environment
+      - revert-migrations
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation \
+              list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+              --no-paginate --output text > ~/textfile.txt
+      - persist_to_workspace:
+            root: ~/
+            paths: 
+              - textfile.txt
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name production-distro \
+              --parameter-overrides PipelineID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
+      - attach_workspace:
+            at: ~/
+      - run:
+            name: verify what's saved as old workflow id
+            # Use $OldBucketID environment variable or mybucket644752792305 below.
+            # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
+            command: |
+              export OldBucketID=$(cat ~/textfile.txt)
+              echo ${OldBucketID}
       - run:
           name: delete bucket objects
           when: on_fail
@@ -426,7 +465,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
