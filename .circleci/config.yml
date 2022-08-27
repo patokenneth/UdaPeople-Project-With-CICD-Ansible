@@ -31,9 +31,9 @@ commands:
             echo ${SUCCESS}
             if(( ${SUCCESS}=='0' )); 
             then
-             cd ~/project/backend
-             npm install
-             npm run migrations:revert
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
   notifypass:
     description: notify the automation team of success
@@ -404,9 +404,10 @@ jobs:
       - checkout
       - run: yum install -y tar gzip
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update nodejs npm
+           name: Install dependencies
+           command: |
+              curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+              yum install -y nodejs
       - run:
           name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
           command: |
