@@ -27,9 +27,9 @@ commands:
           # Add when this will run here
           when: on_fail
           command: |
-            export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/message)
+            export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
             echo ${SUCCESS}
-            if(( ${SUCCESS}==0 )); 
+            if(( ${SUCCESS}=='0' )); 
             then
              cd ~/project/backend
              npm install
@@ -223,6 +223,10 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            sudo apt update
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -231,9 +235,9 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/message -d '1'
+              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
             else
-              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/message -d '0'
+              curl https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '0'
             fi
       - revert-migrations
       - destroy-environment
