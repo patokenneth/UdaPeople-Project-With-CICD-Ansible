@@ -404,41 +404,27 @@ jobs:
       - checkout
       - run: yum install -y tar gzip
       - run:
-           name: Install dependencies
-           command: |
-              curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-              yum install -y nodejs
-      - run:
           name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
           command: |
-            aws cloudformation \
+            export OLD_WORKFLOW_ID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
-              --no-paginate --output text > ~/textfile.txt
-      - persist_to_workspace:
-            root: ~/
-            paths: 
-              - textfile.txt
+              --no-paginate --output text)
+            echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
+            curl --insecure https://kvdb.io/K9eP7c18yzzvrVqhXAynsC/old_workflow_id -d "${OLD_WORKFLOW_ID}"
       - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name InitialStack  \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - attach_workspace:
-            at: ~/
-      - run:
-            name: verify what's saved as old workflow id
-            # Use $OldBucketID environment variable or mybucket644752792305 below.
-            # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
-            command: |
-              export OldBucketID=$(cat ~/textfile.txt)
-              echo ${OldBucketID}
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name udapeople
       - run:
           name: delete bucket objects
           when: on_fail
           command: |
             aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+      - notifyfail
+      - notifypass
       - destroy-environment
       - revert-migrations
 
