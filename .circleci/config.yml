@@ -30,7 +30,7 @@ commands:
           command: |
             export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
             echo ${SUCCESS}
-            if(( ${SUCCESS}==0 )); 
+            if(( ${SUCCESS}==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -236,7 +236,9 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
+              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d "0"
+              export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
+              echo ${SUCCESS}
             fi
       - revert-migrations
       - destroy-environment
@@ -400,7 +402,7 @@ jobs:
             echo ${FRONTEND_WEBSITE}
             if curl -s ${FRONTEND_WEBSITE} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
