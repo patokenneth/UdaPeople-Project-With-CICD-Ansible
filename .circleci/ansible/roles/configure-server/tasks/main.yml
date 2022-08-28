@@ -26,12 +26,6 @@
     name: pm2
     global: yes
 
-# - name: "move env variables to /etc/profile.d/"
-#   become: true
-#   copy:
-#     src: env.sh
-#     dest: /etc/profile.d/
-
 - name: "Install forever Globally to run node app"
   npm:
     name: forever
