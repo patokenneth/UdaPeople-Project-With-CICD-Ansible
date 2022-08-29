@@ -227,6 +227,7 @@ jobs:
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
+            cat ~/project/backend/migrations_dump.txt
             sudo apt update
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
@@ -236,7 +237,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d "0"
+              curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
               export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
               echo ${SUCCESS}
             fi
