@@ -235,7 +235,7 @@ jobs:
       - run:
           name: Send migrations result to kvdb
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "No migrations are pending" ~/project/backend/migrations_dump.txt
             then
               curl --insecure https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger -d '1'
               export SUCCESS=$(curl --insecure  https://kvdb.io/TCMjXnNerAWP6d8AD8tdXG/messenger)
